@@ -39,7 +39,7 @@ export const getUser = async (req: Request, res: Response) => {
 
 export const updateUser = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { name, email, password, role }: User = req.body;
+  const { name, email, role }: User = req.body;
 
   try {
     const existingUser = await prisma.user.findUnique({
@@ -61,7 +61,6 @@ export const updateUser = async (req: Request, res: Response) => {
       data: {
         name,
         email,
-        password,
         role,
       },
     });
@@ -70,7 +69,12 @@ export const updateUser = async (req: Request, res: Response) => {
       data: user,
     });
     console.log(user);
-  } catch (error) {}
+  } catch (error) {
+    res.status(500).json({
+      message: "Error updating user",
+      error: error,
+    });
+  }
 };
 
 export const deleteUser = async (req: Request, res: Response) => {
@@ -86,7 +90,24 @@ export const deleteUser = async (req: Request, res: Response) => {
     if (!existingUser) {
       return res.status(401).json({
         error: "User not found",
-      })
+      });
     }
-  } catch (error) {}
+
+    const user = await prisma.user.delete({
+      where: {
+        id: Number(id),
+      },
+    });
+
+    res.status(200).json({
+      message: "Deleted successfully",
+      data: user,
+    });
+    console.log(user);
+  } catch (error) {
+    res.status(500).json({
+      message: "Error deleting user",
+      error: error,
+    });
+  }
 };
