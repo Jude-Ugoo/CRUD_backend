@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import "dotenv/config";
 import Jwt from "jsonwebtoken";
+// import { user } from '../';
 
 export const checkHeader = (
   req: Request,

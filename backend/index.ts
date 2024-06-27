@@ -2,7 +2,7 @@ import express, { Express, Request, Response } from "express";
 import { database } from "./utils/db";
 import authRoutes from "./routes/auth";
 import cookieParser from "cookie-parser";
-import { checkHeader } from "./middlewares/auth";
+import { checkHeader } from "./middlewares/verifyToken";
 import userRoutes from "./routes/users";
 
 const app: Express = express();

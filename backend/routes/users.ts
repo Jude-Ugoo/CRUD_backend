@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { deleteUser, getUser, getUsers, updateUser } from "../controllers/users";
+import { checkHeader } from "../middlewares/verifyToken";
 
 const userRoutes = Router();
 

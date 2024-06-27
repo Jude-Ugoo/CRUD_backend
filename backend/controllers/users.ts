@@ -25,14 +25,21 @@ export const getUser = async (req: Request, res: Response) => {
         id: Number(id),
       },
     });
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found in database",
+      })
+    }
+
     res.status(200).json({
       data: user,
     });
     console.log(user);
   } catch (error) {
-    console.log(error);
+  
     res.status(500).json({
-      error: "Server error",
+      error: error,
     });
   }
 };
