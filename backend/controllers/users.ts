@@ -48,19 +48,6 @@ export const updateUser = async (req: Request, res: Response) => {
   const { name, email, role, img, phone, desc, country, isClient } = req.body;
 
   const userIdFromToken = req.user?.id.id;
-  
-  if (!userIdFromToken) {
-    return res.status(401).json({
-      error: "Authentication requried",
-    });
-  }
-
-  // Ensure the user can only update their own info
-  if (Number(id) !== Number(userIdFromToken)) {
-    return res.status(403).json({
-      error: "You are not authorized to update this user",
-    });
-  }
 
   try {
     const existingUser = await prisma.user.findUnique({
@@ -72,6 +59,19 @@ export const updateUser = async (req: Request, res: Response) => {
     if (!existingUser) {
       return res.status(401).json({
         error: "User not found",
+      });
+    }
+
+    if (!userIdFromToken) {
+      return res.status(401).json({
+        error: "Authentication requried",
+      });
+    }
+
+    // Ensure the user can only update their own info
+    if (Number(id) !== Number(userIdFromToken)) {
+      return res.status(403).json({
+        error: "You are not authorized to update this user",
       });
     }
 
