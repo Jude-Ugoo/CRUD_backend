@@ -6,7 +6,7 @@ const userRoutes = Router();
 
 userRoutes.get("/users", getUsers);
 userRoutes.get("/user/:id", getUser)
-userRoutes.put("/user/:id", updateUser)
+userRoutes.put("/user/:id", checkHeader, updateUser)
 userRoutes.delete("/user/:id", deleteUser)
 
 export default userRoutes;

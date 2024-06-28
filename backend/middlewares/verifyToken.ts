@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import "dotenv/config";
-import Jwt from "jsonwebtoken";
-// import { user } from '../';
+import jwt from "jsonwebtoken";
+
 
 export const checkHeader = (
   req: Request,
@@ -16,20 +16,27 @@ export const checkHeader = (
     });
   }
 
-  const token = authToken && authToken.split(" ")[1];
+  const token = authToken.split(" ")[1];
 
   try {
-    Jwt.verify(token, process.env.ACCESS_TOKEN_SECRET!, (err, decodedToken) => {
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET!, (err, decodedToken) => {
       if (err) {
-        console.log(err.message);
+        console.log("Token verification error:", err.message);
         return res.status(401).json({
           message: "Authentication required",
         });
-      } else {
-        console.log(decodedToken);
-        req.user.id = decodedToken;
-        next();
       }
+
+      if (typeof decodedToken === "object" && "id" in decodedToken) {
+        req.user = { id: decodedToken }
+        next();
+      } else {
+        return res.status(401).json({
+          message: "Invalid token payload",
+        });
+      }
+
+      // console.log("User Request:", req.user);
     });
   } catch (error) {
     return res.status(403).send("Invalid token");

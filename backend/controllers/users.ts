@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { prisma } from "../utils/db";
-import { User } from "@prisma/client";
+import { checkHeader } from "../middlewares/verifyToken";
 
 export const getUsers = async (req: Request, res: Response) => {
   try {
@@ -29,7 +29,7 @@ export const getUser = async (req: Request, res: Response) => {
     if (!user) {
       return res.status(404).json({
         message: "User not found in database",
-      })
+      });
     }
 
     res.status(200).json({
@@ -37,7 +37,6 @@ export const getUser = async (req: Request, res: Response) => {
     });
     console.log(user);
   } catch (error) {
-  
     res.status(500).json({
       error: error,
     });
@@ -46,7 +45,22 @@ export const getUser = async (req: Request, res: Response) => {
 
 export const updateUser = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { name, email, role }: User = req.body;
+  const { name, email, role, img, phone, desc, country, isClient } = req.body;
+
+  const userIdFromToken = req.user?.id.id;
+  
+  if (!userIdFromToken) {
+    return res.status(401).json({
+      error: "Authentication requried",
+    });
+  }
+
+  // Ensure the user can only update their own info
+  if (Number(id) !== Number(userIdFromToken)) {
+    return res.status(403).json({
+      error: "You are not authorized to update this user",
+    });
+  }
 
   try {
     const existingUser = await prisma.user.findUnique({
@@ -69,13 +83,18 @@ export const updateUser = async (req: Request, res: Response) => {
         name,
         email,
         role,
+        img,
+        phone,
+        desc,
+        country,
+        isClient,
       },
     });
     res.status(200).json({
       message: "Updated successfully",
       data: user,
     });
-    console.log(user);
+    // console.log(user);
   } catch (error) {
     res.status(500).json({
       message: "Error updating user",
